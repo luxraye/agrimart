@@ -1,0 +1,17 @@
+[
+  {"id": "tn-01", "name": "A1 Western Bypass", "lat": -24.6581, "lng": 25.9022, "average_speed": 24, "total_volume_horticulture": 120, "status": "red"},
+  {"id": "tn-02", "name": "A1 Airport link", "lat": -24.555, "lng": 25.98, "average_speed": 42, "total_volume_horticulture": 88, "status": "yellow"},
+  {"id": "tn-03", "name": "Kweneng ring road", "lat": -24.38, "lng": 25.72, "average_speed": 58, "total_volume_horticulture": 45, "status": "green"},
+  {"id": "tn-04", "name": "A2 Palapye corridor", "lat": -22.58, "lng": 27.08, "average_speed": 52, "total_volume_horticulture": 62, "status": "green"},
+  {"id": "tn-05", "name": "A3 Francistown approach", "lat": -21.22, "lng": 27.45, "average_speed": 48, "total_volume_horticulture": 95, "status": "yellow"},
+  {"id": "tn-06", "name": "Selibe Phikwe junction", "lat": -22.52, "lng": 27.82, "average_speed": 55, "total_volume_horticulture": 40, "status": "green"},
+  {"id": "tn-07", "name": "Maun bypass", "lat": -20.02, "lng": 23.38, "average_speed": 61, "total_volume_horticulture": 33, "status": "green"},
+  {"id": "tn-08", "name": "Kasane freight line", "lat": -17.85, "lng": 25.12, "average_speed": 44, "total_volume_horticulture": 28, "status": "yellow"},
+  {"id": "tn-09", "name": "Ghanzi trunk", "lat": -21.65, "lng": 21.72, "average_speed": 68, "total_volume_horticulture": 15, "status": "green"},
+  {"id": "tn-10", "name": "Tsabong corridor", "lat": -26.05, "lng": 22.5, "average_speed": 72, "total_volume_horticulture": 12, "status": "green"},
+  {"id": "tn-11", "name": "Trans-Kalahari (central)", "lat": -23.5, "lng": 24.8, "average_speed": 38, "total_volume_horticulture": 55, "status": "yellow"},
+  {"id": "tn-12", "name": "Southern A2 merge", "lat": -25.1, "lng": 25.9, "average_speed": 31, "total_volume_horticulture": 78, "status": "red"},
+  {"id": "tn-13", "name": "Mochudi feeder", "lat": -24.4, "lng": 26.12, "average_speed": 49, "total_volume_horticulture": 50, "status": "yellow"},
+  {"id": "tn-14", "name": "Serowe link", "lat": -22.42, "lng": 26.68, "average_speed": 56, "total_volume_horticulture": 35, "status": "green"},
+  {"id": "tn-15", "name": "Nata transit", "lat": -20.2, "lng": 26.2, "average_speed": 64, "total_volume_horticulture": 22, "status": "green"}
+]
