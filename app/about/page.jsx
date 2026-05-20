@@ -58,9 +58,9 @@ export default function AboutPage() {
       <div className="bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-6">
         <p className="text-[11px] uppercase tracking-wider text-brand-600 font-medium mb-1.5">Strategic positioning</p>
         <p className="text-sm text-brand-800 leading-relaxed">
-          Position as: <strong>"A pre-season crop decision system that helps farmers, buyers, and institutions avoid oversupply, shortage, and climate-related production losses."</strong>
+          Position as: <strong>&ldquo;A pre-season crop decision system that helps farmers, buyers, and institutions avoid oversupply, shortage, and climate-related production losses.&rdquo;</strong>
         </p>
-        <p className="text-xs text-brand-600 mt-2">Not "an open-data agriculture platform" — too abstract.</p>
+        <p className="text-xs text-brand-600 mt-2">Not &ldquo;an open-data agriculture platform&rdquo; &mdash; too abstract.</p>
       </div>
 
       {/* Phases */}
