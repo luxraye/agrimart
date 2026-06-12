@@ -1,6 +1,6 @@
 {
   "name": "agrimart",
-  "version": "0.3.0",
+  "version": "4.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.47.10",
     "jspdf": "^2.5.1",
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",

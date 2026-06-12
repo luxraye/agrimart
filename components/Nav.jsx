@@ -1,42 +1,43 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart2, Map, Sprout, Tractor, UserCircle } from "lucide-react";
+import { BarChart2, Map, Sprout, ShieldAlert, UserCircle } from "lucide-react";
 
 const TABS = [
-  { href: "/",        label: "Supply",   icon: BarChart2  },
-  { href: "/risk",    label: "Risk",     icon: Tractor    },
-  { href: "/map",     label: "Map",      icon: Map        },
-  { href: "/forecast",label: "My Farm",  icon: Sprout     },
-  { href: "/profile", label: "Profile",  icon: UserCircle },
+  { href: "/",         label: "Supply",  icon: BarChart2  },
+  { href: "/risk",     label: "Risk",    icon: ShieldAlert },
+  { href: "/map",      label: "Map",     icon: Map        },
+  { href: "/forecast", label: "My Farm", icon: Sprout     },
+  { href: "/profile",  label: "Profile", icon: UserCircle },
 ];
 
 export default function Nav() {
   const path = usePathname();
-  const isLogin = path === "/login";
-  if (isLogin) return null;
+  if (path === "/login" || path.startsWith("/admin")) return null;
 
   return (
     <>
-      {/* Top bar — desktop / wide screens */}
-      <header className="hidden md:flex border-b border-gray-100 bg-white sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-14 w-full">
-          <Link href="/" className="flex items-center gap-2.5 no-underline">
-            <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
-              <Sprout size={17} className="text-white" />
+      {/* Desktop top bar */}
+      <header className="hidden md:block sticky top-0 z-50 bg-paper/80 backdrop-blur-xl border-b border-ink/[0.06]">
+        <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-3 no-underline group">
+            <div className="w-9 h-9 rounded-xl bg-brand-700 flex items-center justify-center shadow-card transition-transform group-hover:scale-105">
+              <Sprout size={18} className="text-brand-100" />
             </div>
             <div className="leading-none">
-              <div className="font-serif text-lg font-normal text-gray-900 leading-tight">AgriMart</div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider">Botswana crop intelligence</div>
+              <div className="font-serif text-xl text-ink leading-tight">AgriMart</div>
+              <div className="text-[10px] text-ink/40 uppercase tracking-[0.18em] mt-0.5">Botswana crop intelligence</div>
             </div>
           </Link>
-          <nav className="flex gap-1">
+          <nav className="flex items-center gap-1 bg-white/70 border border-ink/[0.06] rounded-full p-1 shadow-card">
             {TABS.map(({ href, label }) => {
               const active = path === href;
               return (
                 <Link key={href} href={href}
-                  className={`px-3.5 py-1.5 rounded-md text-sm transition-colors no-underline
-                    ${active ? "bg-gray-100 text-gray-900 font-medium" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}>
+                  className={`px-4 py-1.5 rounded-full text-[13px] transition-all no-underline
+                    ${active
+                      ? "bg-brand-700 text-white font-medium shadow-sm"
+                      : "text-ink/55 hover:text-ink hover:bg-ink/[0.04]"}`}>
                   {label}
                 </Link>
               );
@@ -45,35 +46,34 @@ export default function Nav() {
         </div>
       </header>
 
-      {/* Mobile top bar (logo only) */}
-      <header className="md:hidden flex items-center justify-between px-4 h-12 bg-white border-b border-gray-100 sticky top-0 z-50">
-        <Link href="/" className="flex items-center gap-2 no-underline">
-          <div className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center">
-            <Sprout size={14} className="text-white" />
+      {/* Mobile top bar */}
+      <header className="md:hidden sticky top-0 z-50 flex items-center justify-between px-4 h-14 bg-paper/85 backdrop-blur-xl border-b border-ink/[0.06]">
+        <Link href="/" className="flex items-center gap-2.5 no-underline">
+          <div className="w-8 h-8 rounded-lg bg-brand-700 flex items-center justify-center">
+            <Sprout size={15} className="text-brand-100" />
           </div>
-          <span className="font-serif text-base text-gray-900">AgriMart</span>
+          <span className="font-serif text-lg text-ink">AgriMart</span>
         </Link>
-        <span className="text-[10px] uppercase tracking-widest text-gray-400">Botswana</span>
+        <span className="text-[10px] uppercase tracking-[0.2em] text-ink/35">Botswana</span>
       </header>
 
       {/* Mobile bottom tab bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100
-        flex items-stretch h-16 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-ink/[0.07]
+        flex items-stretch h-[68px] safe-area-bottom shadow-nav">
         {TABS.map(({ href, label, icon: Icon }) => {
           const active = path === href;
           return (
             <Link key={href} href={href}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 no-underline transition-colors
-                ${active ? "text-brand-600" : "text-gray-400"}`}>
-              <Icon size={22} strokeWidth={active ? 2.2 : 1.7} />
-              <span className={`text-[10px] leading-none ${active ? "font-medium" : ""}`}>{label}</span>
+              className={`flex-1 flex flex-col items-center justify-center gap-1 no-underline transition-colors relative
+                ${active ? "text-brand-700" : "text-ink/35"}`}>
+              {active && <span className="absolute top-0 w-8 h-0.5 rounded-full bg-brand-600" />}
+              <Icon size={21} strokeWidth={active ? 2.2 : 1.7} />
+              <span className={`text-[10px] leading-none ${active ? "font-semibold" : "font-medium"}`}>{label}</span>
             </Link>
           );
         })}
       </nav>
-
-      {/* Mobile bottom padding so content doesn't sit under the tab bar */}
-      <div className="md:hidden h-16" aria-hidden />
+      <div className="md:hidden h-[68px]" aria-hidden />
     </>
   );
 }

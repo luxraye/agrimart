@@ -2,5 +2,27 @@
   "framework": "nextjs",
   "buildCommand": "yarn build",
   "devCommand": "yarn dev",
-  "installCommand": "yarn install"
+  "installCommand": "yarn install",
+  "crons": [
+    {
+      "path": "/api/fetch/weather",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/fetch/osm?layer=traffic_nodes",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/fetch/osm?layer=water_points",
+      "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/fetch/faostat",
+      "schedule": "0 4 * * 1"
+    },
+    {
+      "path": "/api/risk-scores?refresh=all",
+      "schedule": "0 5 * * *"
+    }
+  ]
 }

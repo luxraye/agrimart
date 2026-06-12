@@ -4,8 +4,15 @@ import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata = {
   title: "AgriMart — Botswana Crop Intelligence",
-  description: "Pre-season crop decision system for Botswana horticulture.",
-  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
+  description:
+    "Live pre-season crop decision system for Botswana horticulture. Real weather, satellite, and farmer-declared supply signals.",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#1d5639",
 };
 
 export default function RootLayout({ children }) {
@@ -14,7 +21,6 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <meta name="theme-color" content="#2d6a4f" />
       </head>
       <body>
         <AuthProvider>

@@ -5,16 +5,14 @@ import {
   useEffect, useMemo, useState,
 } from "react";
 
-const KEY_SESSION = "agrimart_session_v2";
-const KEY_PROFILE = "agrimart_profile_v2";
-const KEY_FARM    = "agrimart_farm_v2";
-
 const defaultProfile = () => ({
+  id: null,
   displayName: "",
   farmName: "",
   district: "central",
   location: "",
   phone: "",
+  email: "",
 });
 
 const defaultFarm = () => ({
@@ -27,99 +25,111 @@ const defaultFarm = () => ({
   marketTarget: "local",
 });
 
-function read(key) {
-  try { return localStorage.getItem(key); } catch { return null; }
-}
-function write(key, val) {
-  try { localStorage.setItem(key, val); } catch {}
-}
-function remove(key) {
-  try { localStorage.removeItem(key); } catch {}
-}
-
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [session,   setSession]   = useState(null);
-  const [profile,   setProfile]   = useState(defaultProfile);
-  const [farm,      setFarmState] = useState(defaultFarm);
-  const [hydrated,  setHydrated]  = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [user,     setUser]     = useState(null);
+  const [profile,  setProfile]  = useState(defaultProfile);
+  const [farm,     setFarm]     = useState(defaultFarm);
+  const [hydrated, setHydrated] = useState(false);
 
-  // Rehydrate from localStorage on mount
-  useEffect(() => {
-    const s = read(KEY_SESSION);
-    const rawP = read(KEY_PROFILE);
-    const rawF = read(KEY_FARM);
-    if (s) setSession(s);
-    if (rawP) {
-      try { setProfile({ ...defaultProfile(), ...JSON.parse(rawP) }); } catch {}
+  const loadSession = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/session", { cache: "no-store" });
+      const json = await res.json();
+      if (json.ok && json.authenticated) {
+        setUser(json.user);
+        setProfile(json.profile ?? defaultProfile());
+        setFarm(json.farm ?? defaultFarm());
+      } else {
+        setUser(null);
+        setProfile(defaultProfile());
+        setFarm(defaultFarm());
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setHydrated(true);
     }
-    if (rawF) {
-      try { setFarmState({ ...defaultFarm(), ...JSON.parse(rawF) }); } catch {}
-    }
-    setHydrated(true);
   }, []);
 
-  const login = useCallback((name, districtVal, locationVal, phone) => {
-    const prof = {
-      displayName: String(name || "Farmer").trim(),
-      farmName:    "",
-      district:    districtVal || "central",
-      location:    String(locationVal || "").trim(),
-      phone:       String(phone || "").trim(),
-    };
-    const token = `am_${Date.now()}`;
-    setSession(token);
-    setProfile(prof);
-    write(KEY_SESSION, token);
-    write(KEY_PROFILE, JSON.stringify(prof));
+  useEffect(() => {
+    loadSession();
+  }, [loadSession]);
+
+  const signup = useCallback(async ({ email, password, displayName, district, farmName, phone }) => {
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, displayName, district, farmName, phone }),
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || "Signup failed");
+    if (json.needsConfirmation) {
+      return { ok: true, needsConfirmation: true };
+    }
+    await loadSession();
+    return { ok: true };
+  }, [loadSession]);
+
+  const login = useCallback(async (email, password) => {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || "Login failed");
+    setUser(json.user);
+    setProfile(json.profile ?? defaultProfile());
+    setFarm(json.farm ?? defaultFarm());
     return { ok: true };
   }, []);
 
-  const logout = useCallback(() => {
-    setSession(null);
+  const logout = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setUser(null);
     setProfile(defaultProfile());
-    setFarmState(defaultFarm());
-    remove(KEY_SESSION);
-    remove(KEY_PROFILE);
-    remove(KEY_FARM);
+    setFarm(defaultFarm());
   }, []);
 
-  const updateProfile = useCallback((partial) => {
-    setProfile((prev) => {
-      const next = { ...prev, ...partial };
-      write(KEY_PROFILE, JSON.stringify(next));
-      return next;
+  const updateProfile = useCallback(async (partial) => {
+    const res = await fetch("/api/auth/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(partial),
     });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || "Could not save profile");
+    setProfile(json.profile);
+    return json.profile;
   }, []);
 
-  const updateFarm = useCallback((partial) => {
-    setFarmState((prev) => {
-      const next = { ...prev, ...partial };
-      write(KEY_FARM, JSON.stringify(next));
-      return next;
+  const updateFarm = useCallback(async (partial) => {
+    const res = await fetch("/api/auth/farm", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(partial),
     });
-  }, []);
-
-  const syncLocation = useCallback(async () => {
-    setIsSyncing(true);
-    await new Promise((r) => setTimeout(r, 1200 + Math.random() * 800));
-    setIsSyncing(false);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || "Could not save farm settings");
+    setFarm(json.farm);
+    return json.farm;
   }, []);
 
   const value = useMemo(() => ({
     hydrated,
-    isAuthenticated: !!session,
+    isAuthenticated: !!user,
+    user,
     profile,
     farm,
-    isSyncing,
+    signup,
     login,
     logout,
     updateProfile,
     updateFarm,
-    syncLocation,
-  }), [hydrated, session, profile, farm, isSyncing, login, logout, updateProfile, updateFarm, syncLocation]);
+    refreshSession: loadSession,
+  }), [hydrated, user, profile, farm, signup, login, logout, updateProfile, updateFarm, loadSession]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

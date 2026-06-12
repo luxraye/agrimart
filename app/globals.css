@@ -2,36 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,360..620;1,9..144,360..620&family=Inter:opsz,wght@14..32,360..640&display=swap');
 
 :root {
-  --font-dm-sans:  'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-dm-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans:  'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
 }
 
-html { font-family: var(--font-dm-sans); background: #fafafa; }
+html {
+  font-family: var(--font-sans);
+  background: #f6f5f1;
+  scroll-behavior: smooth;
+}
 
 body {
   min-height: 100dvh;
-  background: #fafafa;
-  color: #111827;
+  background:
+    radial-gradient(1200px 500px at 85% -10%, rgba(53, 136, 92, 0.07), transparent 60%),
+    radial-gradient(900px 420px at -10% 0%, rgba(223, 174, 79, 0.06), transparent 55%),
+    #f6f5f1;
+  color: #16241c;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  font-feature-settings: "cv11", "ss01";
 }
 
-.font-serif { font-family: var(--font-dm-serif); }
+.font-serif { font-family: var(--font-serif); }
 
 .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
-.leaflet-container { background: #e8f4e8; font-family: var(--font-dm-sans); }
+/* ── Cards ─────────────────────────────────────────────────────────────── */
+.card {
+  @apply bg-white rounded-2xl border border-ink/[0.06] shadow-card;
+}
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lift hover:-translate-y-0.5;
+}
+
+/* ── Skeleton shimmer ──────────────────────────────────────────────────── */
+.skeleton {
+  @apply relative overflow-hidden rounded-lg bg-ink/[0.05];
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: shimmer 1.6s infinite;
+}
+
+/* ── Inputs ────────────────────────────────────────────────────────────── */
+.field-label {
+  @apply text-[11px] uppercase tracking-[0.12em] text-ink/45 font-medium;
+}
+.field-input {
+  @apply w-full rounded-xl border border-ink/10 bg-white px-3.5 py-2.5 text-sm text-ink
+    placeholder:text-ink/30 transition-shadow
+    focus:outline-none focus:ring-2 focus:ring-brand-400/60 focus:border-transparent;
+}
+
+.auth-input {
+  @apply w-full rounded-xl border border-ink/10 bg-white px-3.5 py-2.5 text-sm text-ink
+    placeholder:text-ink/30 transition-shadow
+    focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-transparent;
+}
+
+/* ── Leaflet polish ────────────────────────────────────────────────────── */
+.leaflet-container { background: #e9efe7; font-family: var(--font-sans); }
 .leaflet-popup-content-wrapper {
-  border-radius: 12px !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important;
-  font-family: var(--font-dm-sans);
+  border-radius: 14px !important;
+  box-shadow: 0 8px 32px rgba(22, 36, 28, 0.16) !important;
+  border: 1px solid rgba(22, 36, 28, 0.06);
+  font-family: var(--font-sans);
   font-size: 13px;
 }
 .leaflet-popup-content { margin: 12px 14px !important; }
-.leaflet-control-zoom { border: none !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important; }
-.leaflet-control-zoom a { border-radius: 8px !important; border: 0.5px solid #e5e7eb !important; }
+.leaflet-control-zoom { border: none !important; box-shadow: 0 4px 16px rgba(22,36,28,0.12) !important; }
+.leaflet-control-zoom a { border-radius: 10px !important; border: 1px solid rgba(22,36,28,0.08) !important; }
 
 .recharts-tooltip-wrapper { outline: none !important; }
+
+/* ── Scrollbar (desktop) ───────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(22,36,28,0.14); border-radius: 8px; border: 2px solid #f6f5f1; }
+  ::-webkit-scrollbar-track { background: transparent; }
+}
