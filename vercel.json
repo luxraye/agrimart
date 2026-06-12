@@ -6,7 +6,7 @@
   "crons": [
     {
       "path": "/api/fetch/weather",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 1 * * *"
     },
     {
       "path": "/api/fetch/osm?layer=traffic_nodes",
