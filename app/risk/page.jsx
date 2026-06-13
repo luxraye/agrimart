@@ -6,15 +6,19 @@ import {
   ResponsiveContainer, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell,
 } from "recharts";
-import { Droplets, Sun, Truck, Bug, TrendingUp, Satellite } from "lucide-react";
+import { Droplets, Sun, Truck, Bug, TrendingUp, Satellite, BrainCircuit } from "lucide-react";
 
 import PageHero from "@/components/PageHero";
 import SelectField from "@/components/SelectField";
 import AiRec from "@/components/AiRec";
+import DataTwinBanner from "@/components/DataTwinBanner";
 import RequireAuth from "@/components/RequireAuth";
 import FreshnessTag from "@/components/FreshnessTag";
 
-import { DISTRICTS, CROPS, PLANTING_MONTHS } from "@/lib/data";
+import {
+  DISTRICTS, CROPS, PLANTING_MONTHS, INTEL_MODES,
+  TWIN_FIELD_INTEL, computeTwinRisk,
+} from "@/lib/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { levelColors, riskBarColor } from "@/lib/utils";
 
@@ -52,6 +56,7 @@ function RiskContent() {
   const [district, setDistrict] = useState(profile.district || "central");
   const [crop,     setCrop]     = useState("tomato");
   const [month,    setMonth]    = useState("jun");
+  const [mode,     setMode]     = useState("local");
 
   const [intel,        setIntel]        = useState(null);
   const [intelLoading, setIntelLoading] = useState(true);
@@ -59,6 +64,8 @@ function RiskContent() {
   const [risk,         setRisk]         = useState(null);
   const [riskLoading,  setRiskLoading]  = useState(true);
   const reqId = useRef(0);
+
+  const isTwin = mode === "twin";
 
   const loadIntel = useCallback((d, soft = false) => {
     const id = ++reqId.current;
@@ -78,10 +85,20 @@ function RiskContent() {
   }, []);
 
   useEffect(() => {
+    if (isTwin) {
+      setIntel(TWIN_FIELD_INTEL);
+      setIntelLoading(false);
+      return;
+    }
     loadIntel(district);
-  }, [district, loadIntel]);
+  }, [district, isTwin, loadIntel]);
 
   useEffect(() => {
+    if (isTwin) {
+      setRisk(computeTwinRisk(district, crop));
+      setRiskLoading(false);
+      return;
+    }
     let active = true;
     setRiskLoading(true);
     fetch(`/api/risk-scores?district=${district}&crop=${crop}`)
@@ -97,7 +114,7 @@ function RiskContent() {
         setRiskLoading(false);
       });
     return () => { active = false; };
-  }, [district, crop]);
+  }, [district, crop, isTwin]);
 
   async function handleRefresh() {
     setRefreshing(true);
@@ -130,6 +147,7 @@ function RiskContent() {
   }
   if (intel?.moisture != null && intel.moisture < 20) watchpoints.push("Soil moisture is critically low — irrigation is essential.");
   if (intel?.temp != null && intel.temp > 32) watchpoints.push("High temperature stress detected — consider shade netting.");
+  if (isTwin) watchpoints.push("Scores use baseline anchors from a regional agro-climatic twin — validate on the ground before acting.");
   if (watchpoints.length === 0 && scores) watchpoints.push("Risk profile is manageable for this selection.");
 
   return (
@@ -140,25 +158,35 @@ function RiskContent() {
         sub="Live climate, soil, and logistics indicators from Open-Meteo, MODIS, and OpenStreetMap — refreshed every six hours."
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         <SelectField label="District"     id="r-district" value={district} onChange={setDistrict} options={DISTRICTS} />
         <SelectField label="Crop"         id="r-crop"     value={crop}     onChange={setCrop}     options={CROPS} />
         <SelectField label="Season month" id="r-month"    value={month}    onChange={setMonth}    options={PLANTING_MONTHS} />
+        <SelectField label="Intelligence" id="r-mode"     value={mode}     onChange={setMode}     options={INTEL_MODES} />
       </div>
+
+      {isTwin && <DataTwinBanner className="mb-5" />}
 
       {/* Field intelligence */}
       <div className="card p-5 mb-5 animate-fade-up">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <Satellite size={14} className="text-brand-600" />
+            {isTwin ? (
+              <BrainCircuit size={14} className="text-violet-600" />
+            ) : (
+              <Satellite size={14} className="text-brand-600" />
+            )}
             <span className="text-[11px] font-semibold text-ink/45 uppercase tracking-[0.14em]">
-              Field intelligence
+              Field intelligence{isTwin ? " — data twin" : ""}
             </span>
-            {intel?.ndviSource === "proxy" && (
+            {isTwin && (
+              <span className="text-[10px] text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full">Inferred</span>
+            )}
+            {!isTwin && intel?.ndviSource === "proxy" && (
               <span className="text-[10px] text-ink/35 bg-ink/5 px-2 py-0.5 rounded-full">NDVI proxy (ET-based)</span>
             )}
           </div>
-          {!intelLoading && (
+          {!intelLoading && !isTwin && (
             <FreshnessTag
               fetchedAt={intel?.fetchedAt}
               stale={intel?.stale}

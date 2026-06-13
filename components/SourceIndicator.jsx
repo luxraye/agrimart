@@ -7,6 +7,7 @@ const CONFIG = {
   baseline: { dot: "bg-gray-400",    text: "text-ink/45" },
   cached:   { dot: "bg-sky-500",     text: "text-sky-700" },
   fallback: { dot: "bg-gray-400",    text: "text-ink/45" },
+  twin:     { dot: "bg-violet-500",  text: "text-violet-700" },
 };
 
 export default function SourceIndicator({ source, farmers, className = "" }) {
@@ -14,6 +15,7 @@ export default function SourceIndicator({ source, farmers, className = "" }) {
   const label =
     source === "live"     ? `Live data · ${farmers} farmer${farmers === 1 ? "" : "s"}` :
     source === "partial"  ? `Partial data · ${farmers} farmer${farmers === 1 ? "" : "s"} — baseline supplemented` :
+    source === "twin"     ? "Data twin · Regional proxy (inferred)" :
     source === "cached"   ? "Cached data" :
     "Baseline estimate · No live submissions yet";
 

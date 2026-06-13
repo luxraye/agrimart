@@ -9,10 +9,11 @@ import SelectField from "@/components/SelectField";
 import MetricCard from "@/components/MetricCard";
 import SignalBadge from "@/components/SignalBadge";
 import SourceIndicator from "@/components/SourceIndicator";
+import DataTwinBanner from "@/components/DataTwinBanner";
 import AiRec from "@/components/AiRec";
 import RequireAuth from "@/components/RequireAuth";
 
-import { DISTRICTS, CROPS, PLANTING_MONTHS, currentSeasonYear } from "@/lib/data";
+import { DISTRICTS, CROPS, PLANTING_MONTHS, INTEL_MODES, DATA_TWIN_SIGNAL, currentSeasonYear } from "@/lib/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { statusColors } from "@/lib/utils";
 
@@ -27,12 +28,18 @@ function SupplyContent() {
   const [district, setDistrict] = useState(profile.district || "central");
   const [crop,     setCrop]     = useState("tomato");
   const [month,    setMonth]    = useState("jun");
+  const [mode,     setMode]     = useState("local");
 
   const [signal,  setSignal]  = useState(null);
   const [loading, setLoading] = useState(true);
   const reqId = useRef(0);
 
   useEffect(() => {
+    if (mode === "twin") {
+      setSignal(DATA_TWIN_SIGNAL);
+      setLoading(false);
+      return;
+    }
     const id = ++reqId.current;
     setLoading(true);
     fetch(`/api/supply-signal?district=${district}&crop=${crop}&season_year=${currentSeasonYear()}`)
@@ -47,7 +54,7 @@ function SupplyContent() {
         setSignal(null);
         setLoading(false);
       });
-  }, [district, crop]);
+  }, [district, crop, mode]);
 
   const sig = signal;
   const pressure = sig ? Math.round(Math.max(0, Math.min(100, sig.demand - sig.supply + 50))) : null;
@@ -67,11 +74,14 @@ function SupplyContent() {
         sub="Live supply signals built from real farmer declarations, FAO production data, and district capacity ceilings."
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
-        <SelectField label="District"       id="district" value={district} onChange={setDistrict} options={DISTRICTS} />
-        <SelectField label="Crop"           id="crop"     value={crop}     onChange={setCrop}     options={CROPS} />
-        <SelectField label="Planting month" id="month"    value={month}    onChange={setMonth}    options={PLANTING_MONTHS} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <SelectField label="District"          id="district" value={district} onChange={setDistrict} options={DISTRICTS} />
+        <SelectField label="Crop"              id="crop"     value={crop}     onChange={setCrop}     options={CROPS} />
+        <SelectField label="Planting month"    id="month"    value={month}    onChange={setMonth}    options={PLANTING_MONTHS} />
+        <SelectField label="Intelligence mode" id="mode"     value={mode}     onChange={setMode}     options={INTEL_MODES} />
       </div>
+
+      {mode === "twin" && <DataTwinBanner className="mb-4" />}
 
       {/* Signal + provenance */}
       <div className="flex flex-wrap items-center gap-3 mb-2">
@@ -87,7 +97,7 @@ function SupplyContent() {
         )}
       </div>
 
-      {!loading && sig && sig.source !== "live" && (
+      {!loading && sig && sig.source !== "live" && sig.source !== "twin" && (
         <div className="flex items-start gap-2.5 text-ink/55 bg-gold-50 border border-gold-300/50 rounded-xl px-4 py-3 mb-4 text-[13px] animate-fade-up">
           <Database size={14} className="mt-0.5 flex-shrink-0 text-gold-600" />
           <span>
